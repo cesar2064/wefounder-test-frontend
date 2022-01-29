@@ -13,7 +13,11 @@ export class DeckService {
         private readonly _httpClient: HttpClient
     ) {}
 
-    getDecks() {
-        return this._httpClient.get<DeckListItem[]>(path);
+    getDecks(searchValue: string) {
+        return this._httpClient.get<DeckListItem[]>(path, {
+            params: {
+                name: searchValue
+            }
+        });
     }
 }

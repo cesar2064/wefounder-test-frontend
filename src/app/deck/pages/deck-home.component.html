@@ -1,3 +1,28 @@
-<div *ngFor="let deckItem of decksList$ | async">
-    {{ deckItem.name }}
-</div>
+<section class="header">
+  <mat-form-field appearance="fill">
+    <mat-label>Search by Name</mat-label>
+    <input matInput type="text" [formControl]="filterControl">
+    <button *ngIf="filterControl.value" matSuffix mat-icon-button aria-label="Clear" (click)="filterControl.setValue('')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <button mat-icon-button class="add-deck" aria-label="add">
+    <mat-icon>add_circle</mat-icon>
+  </button>
+</section>
+<section class="decks-list">
+    <mat-card *ngFor="let deckItem of decksList$ | async">
+        <mat-card-header>
+          <mat-card-title>{{ deckItem.name }}</mat-card-title>
+        </mat-card-header>
+        <div class="image-container">
+          <button mat-icon-button (click)="prevImage(deckItem)" class="add-deck" aria-label="add">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <img mat-card-image [src]="deckItem.files[deckItem.imageIndex]" [alt]="deckItem.name">
+          <button mat-icon-button (click)="nextImage(deckItem)" class="add-deck" aria-label="add">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+    </mat-card>
+</section>
