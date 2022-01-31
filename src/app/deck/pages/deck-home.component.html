@@ -6,7 +6,7 @@
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
-  <button mat-icon-button class="add-deck" aria-label="add">
+  <button mat-icon-button (click)="openCreateDeckDialog()" class="add-deck" aria-label="add">
     <mat-icon>add_circle</mat-icon>
   </button>
 </section>
@@ -26,3 +26,26 @@
         </div>
     </mat-card>
 </section>
+
+<ng-template #newDeckDialog>
+  <h1 mat-dialog-title>Add a New Deck</h1>
+  <div mat-dialog-content>
+    <form (ngSubmit)="onNewDeckFormSubmitted()" [formGroup]="newDeckForm" class="new-deck-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name">
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>File</mat-label>
+        <input readonly (focus)="fileInput.click()" matInput type="text" formControlName="deckFileName">
+        <input class="upload-input" #fileInput (change)="onFileSelected($event)" type="file" accept=".pdf,.ppt,.pptx">
+      </mat-form-field>
+      <div class="buttons-container">
+        <button mat-raised-button type="button" [disabled]="newDeckFormLoading" (click)="dialogRef.close()">Cancel</button>
+        <button mat-raised-button type="submit" [disabled]="newDeckFormLoading || newDeckForm.invalid" color="primary">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

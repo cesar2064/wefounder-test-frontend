@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { concatMap, debounceTime, map, Observable, startWith } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DeckService } from '../services/deck.service';
@@ -18,11 +19,15 @@ type DeckViewModel = {
 export class DeckHomeComponent {
 
     filterControl = new FormControl('');
+    file!: File;
+    newDeckFormLoading = false;
+
+    dialogRef!: MatDialogRef<TemplateRef<any>>;
 
     decksList$: Observable<DeckViewModel[]> = this.filterControl.valueChanges.pipe(
         debounceTime(500),
-        startWith(''),
-        concatMap((seachValue)=> this.deckService.getDecks(seachValue)),
+        startWith(['']),
+        concatMap(([seachValue])=> this.deckService.getDecks(seachValue || '')),
         map((decks) => decks.map((deck)=> {
             const imagesWithFullUrl = deck.files.map((img)=> this.getImageFullUrl(deck.name, img));
             return {
@@ -33,9 +38,23 @@ export class DeckHomeComponent {
         }))
     )
 
+    newDeckForm = this.formBuilder.group({
+        name: [null, Validators.required],
+        deckFileName: [null, Validators.required]
+    });
+
+    @ViewChild('newDeckDialog', { static: true }) 
+    newDeckDialog!: TemplateRef<any>;
+
     constructor(
-        private readonly deckService: DeckService
+        private readonly deckService: DeckService,
+        private readonly dialog: MatDialog,
+        private readonly formBuilder: FormBuilder
     ) {}
+
+    openCreateDeckDialog() {
+        this.dialogRef = this.dialog.open(this.newDeckDialog);
+    }
 
     nextImage(deckModel: DeckViewModel) {
         if (deckModel.imageIndex === deckModel.files.length - 1) {
@@ -51,6 +70,24 @@ export class DeckHomeComponent {
         } else {
             deckModel.imageIndex--;
         }
+    }
+
+    onFileSelected(event: Event) {
+        const file = (event.currentTarget as HTMLInputElement).files?.[0];
+        if (file) {
+            this.newDeckForm.get('deckFileName')?.setValue(file.name);
+            this.file = file;
+        }
+    }
+
+    onNewDeckFormSubmitted() {
+        const deckFormValue = this.newDeckForm.value;
+        this.newDeckFormLoading = true;
+        this.deckService.createDeck(deckFormValue.name, this.file).subscribe(()=> {
+            this.newDeckFormLoading = false;
+            this.dialogRef.close();
+            this.filterControl.setValue('');
+        });
     }
 
     private getImageFullUrl(deckName: string, imageName: string) {

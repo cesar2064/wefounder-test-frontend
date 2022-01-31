@@ -20,4 +20,11 @@ export class DeckService {
             }
         });
     }
+
+    createDeck(name: string, deckFile: File) {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('deckFile', deckFile)
+        return this._httpClient.post(path, formData);
+    }
 }

@@ -1,8 +1,12 @@
 section.decks-list {
     display: flex;
+    flex-flow: row wrap;
+    padding: 12px;
+
     mat-card {
         max-width: 400px;
         max-height: 400px;
+        margin: 4px;
     }
     .image-container {
         display: flex;
@@ -17,5 +21,20 @@ section.header {
 
     .add-deck {
         margin-bottom: 20px;
+    }
+}
+.new-deck-form {
+    mat-form-field {
+        width: 100%;
+    }
+    .upload-input {
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
+    .buttons-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 1px 0;
     }
 }
